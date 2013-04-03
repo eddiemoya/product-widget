@@ -25,13 +25,37 @@ class Product_Widget extends WP_Widget
 		add_action('widgets_init', create_function('', 'register_widget("' . __CLASS__ . '");'));
 	}
     
-    public function widget( $args, $instance )
+    public function widget($args, $instance)
 	{
 		extract($args);
         extract($instance);
-		
-		echo $before_widget;
+
+        $parts = array();
+        $prods = array();
+
+		$model = new Products_Model($parts);
+		$nf = (!empty($model->not_found)) ? $model->not_found : array();
+
+		foreach($instance as $k => $v)
+		{
+			if(strpos($k, 'pw_id_') === 0)
+			{
+				$part = str_replace('pw_id_', "", $k);
+
+				if(in_array($part, $nf))
+				{
+					continue;
+				}
+
+				$parts[] = $part;
+				$prods[] = $v;
+			}
+		}
 	   
+		echo $before_widget;
+
+		echo json_encode($prods);
+
         echo $after_widget;
     }
     
@@ -41,17 +65,30 @@ class Product_Widget extends WP_Widget
 		$instance = $old_instance;        
 		$ids = explode(",", $instance['pw_ids']);
 
-        foreach($ids as $id)
-        {
-			$id = trim($id);
+		for($i=0; $i<count($ids); $i++)
+		{
+			$ids[$i] = trim($ids[$i]);
+		}
 
-			if(empty($id))
+		$model = new Products_Model($ids);
+		$prods = $model->products;
+		$nf = $model->not_found;
+
+		foreach($prods as $p)
+		{
+			if(empty($p))
 			{
 				continue;
-			}        	
+			}
 
-        	$new_instance['pw_id_' . $id] = "on";
-        }
+			$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
+			$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+		}
+
+		if(!empty($nf))
+		{
+			$new_instance['not_found'] = implode(",", $nf);
+		}
 
 		foreach($new_instance as $key => $value)
 		{
@@ -63,10 +100,16 @@ class Product_Widget extends WP_Widget
 			if($value == 'on' && !isset($new_instance[$key]))
 			{
 				unset($instance[$key]);
+
+				if(strpos($key, 'check_pw_id_') === 0)
+				{
+					unset($instance[str_replace("check_", "", $key)]);
+				}
 			}
 
-			if((strpos($key, 'pw_id_') === 0) && (!empty($new_instance['pw_ids_remove_all'])))
+			if((strpos($key, 'check_pw_id_') === 0) && (!empty($new_instance['pw_ids_remove_all'])))
         	{
+        		unset($instance[str_replace("check_", "", $key)]);
         		unset($instance[$key]);
         	}
         }
@@ -101,12 +144,12 @@ class Product_Widget extends WP_Widget
 
 		foreach($instance as $k => $v)
 		{
-			if(strpos($k, 'pw_id_') === 0)
+			if(strpos($k, 'check_pw_id_') === 0)
 			{
 				$supFields[] = array(
 					'field_id'		=> "$k",
 					'type'			=> "checkbox",
-					'label'			=> str_replace("pw_id_", "", $k)
+					'label'			=> str_replace("check_pw_id_", "", $k)
 				);
 			}
 		}
@@ -120,6 +163,12 @@ class Product_Widget extends WP_Widget
 			);
 
 			$fields = array_merge($fields, $supFields);
+		}
+
+		if(!empty($instance['not_found']))
+		{
+			echo "<h4>The following part numbers were not found:</h4>";
+			echo "<div>" . $instance['not_found'] . "</div>";
 		}
 
         $this->form_fields($fields, $instance);
