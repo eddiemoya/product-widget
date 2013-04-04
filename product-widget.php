@@ -156,13 +156,15 @@ class Product_Widget extends WP_Widget
 
 		if(!empty($supFields))
 		{
-			$fields[] = array(
+			$afield = array();
+						
+			$afield[] = array(
 				'field_id'		=> "pw_ids_remove_all",
 				'type'			=> "checkbox",
 				'label'			=> "Remove All"
 			);
 
-			$fields = array_merge($fields, $supFields);
+			$supFields = array_merge($afield, $supFields);
 		}
 
 		if(!empty($instance['not_found']))
@@ -172,6 +174,10 @@ class Product_Widget extends WP_Widget
 		}
 
         $this->form_fields($fields, $instance);
+		
+		echo "<div class='productWidgetCheckArea' style='height: 200px; overflow: auto;'>";
+		$this->form_fields($supFields, $instance);
+		echo "</div>";
 	}
     
     private function form_fields($fields, $instance, $group = false){
