@@ -7,6 +7,8 @@ Author: Matthew Day
 */
 class Product_Widget extends WP_Widget 
 {	
+	public static $PAGINATION_NUMBER = 1;
+	
 	var $widget_name = 'Product Widget';
 	var $id_base = 'product_widget';
 	
@@ -141,30 +143,44 @@ class Product_Widget extends WP_Widget
 		);
 
 		$supFields = array();
+		$sf = NULL;
+		
+		$afield = array();
+		$pn = 0;
 
 		foreach($instance as $k => $v)
 		{
+			if(is_null($sf))
+			{
+				$sf = array();
+			}
+			
 			if(strpos($k, 'check_pw_id_') === 0)
 			{
-				$supFields[] = array(
+				$sf[] = array(
 					'field_id'		=> "$k",
 					'type'			=> "checkbox",
 					'label'			=> str_replace("check_pw_id_", "", $k)
 				);
+				
+				$pn++;
+				
+				if($pn >= self::$PAGINATION_NUMBER)
+				{
+					$supFields[] = $sf;
+					$sf = array();
+					$pn = 0;
+				}
 			}
 		}
 
 		if(!empty($supFields))
-		{
-			$afield = array();
-						
+		{						
 			$afield[] = array(
 				'field_id'		=> "pw_ids_remove_all",
 				'type'			=> "checkbox",
 				'label'			=> "Remove All"
 			);
-
-			$supFields = array_merge($afield, $supFields);
 		}
 
 		if(!empty($instance['not_found']))
@@ -175,9 +191,51 @@ class Product_Widget extends WP_Widget
 
         $this->form_fields($fields, $instance);
 		
-		echo "<div class='productWidgetCheckArea' style='height: 200px; overflow: auto;'>";
-		$this->form_fields($supFields, $instance);
-		echo "</div>";
+		if(!empty($afield))
+		{
+			$this->form_fields($afield, $instance);
+		}
+	echo <<<__JS__
+<script type="text/javascript">
+	var currPage = 0;
+	
+	function nextCheckPage()
+	{
+		var tp = document.getElementById("productWidgetCheckArea_" + currPage);
+		var pp = document.getElementById("productWidgetCheckArea_" + (currPage + 1));
+
+		if(pp)
+		{
+			tp.style.display = "none";
+			pp.style.display = "";
+			currPage++;
+		}
+	}
+	
+	function prevCheckPage()
+	{
+		var tp = document.getElementById("productWidgetCheckArea_" + currPage);
+		var pp = document.getElementById("productWidgetCheckArea_" + (currPage - 1));
+		
+		if(pp)
+		{
+			tp.style.display = "none";
+			pp.style.display = "";
+			currPage--;
+		}
+	}
+</script>
+
+__JS__;
+		for($i=0; $i<count($supFields); $i++)
+		{
+			$disp = ($i == 0) ? "" : " display: none;";
+			echo "<div id='productWidgetCheckArea_$i' class='productWidgetCheckArea' style='height: 30px; overflow: auto;$disp'>";
+			$this->form_fields($supFields[$i], $instance);
+			echo "</div>";
+		}
+		
+		echo '<div><a href="javascript:prevCheckPage();">Previous</a> | <a href="javascript:nextCheckPage();">Next</a></div>';
 	}
     
     private function form_fields($fields, $instance, $group = false){
