@@ -7,7 +7,7 @@ Author: Matthew Day
 */
 class Product_Widget extends WP_Widget 
 {	
-	public static $PAGINATION_NUMBER = 4;
+	public static $PAGINATION_NUMBER = 10;
 	
 	var $widget_name = 'Product Widget';
 	var $id_base = 'product_widget';
@@ -195,7 +195,6 @@ class Product_Widget extends WP_Widget
 		}
 
         $this->form_fields($fields, $instance);
-
 
 	echo <<<__JS__
 <style type="text/css">
