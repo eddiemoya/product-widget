@@ -53,10 +53,13 @@ class Product_Widget extends WP_Widget
 				$prods[] = $v;
 			}
 		}
+
+		$template = locate_template(array("widgets/product-widget/slider.php"));
+		$data = $model->get_by_id($prods);
 	   
 		echo $before_widget;
 
-		echo json_encode($prods);
+		include($template);
 
         echo $after_widget;
     }
@@ -125,6 +128,11 @@ class Product_Widget extends WP_Widget
         $instance = wp_parse_args((array) $instance, $defaults);
 		
 		$fields = array(
+			array(
+				'field_id'		=> "pw_title",
+				'type'			=> "text",
+				'label'			=> "Title"
+			),
 			array(
 				'field_id'		=> "pw_template",
 				'type'			=> "select",
