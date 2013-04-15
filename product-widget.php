@@ -53,7 +53,7 @@ class Product_Widget extends WP_Widget
 				$prods[] = $v;
 			}
 		}
-echo "BLAHMORE";
+
 		$template = locate_template(array("widgets/product-widget/slider.php"));
 		$data = $model->get_by_id($prods);
 	   
