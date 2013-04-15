@@ -78,19 +78,22 @@ class Product_Widget extends WP_Widget
 				$ids[$i] = trim($ids[$i]);
 			}
 
-			$model = new Products_Model($ids);
-			$prods = $model->products;
-			$nf = $model->not_found;
-
-			foreach($prods as $p)
+			if(class_exists('Products_Model'))
 			{
-				if(empty($p))
-				{
-					continue;
-				}
+				$model = new Products_Model($ids);
+				$prods = $model->products;
+				$nf = $model->not_found;
 
-				$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
-				$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+				foreach($prods as $p)
+				{
+					if(empty($p))
+					{
+						continue;
+					}
+
+					$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
+					$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+				}
 			}
 		}
 
