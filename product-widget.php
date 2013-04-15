@@ -143,6 +143,17 @@ class Product_Widget extends WP_Widget
 				)
 			),
 			array(
+				'field_id'		=> "pw_fields_to_show",
+				'type'			=> "select",
+				'label'			=> "Fields to Show",
+				'options'		=> array(
+					'1' => 1,
+					'2'	=> 2,
+					'3'	=> 3,
+					'4'	=> 4
+				)
+			),
+			array(
 				'field_id'		=> "pw_ids",
 				'type'			=> "textarea",
 				'label'			=> "IDs (CSV List)",
@@ -316,13 +327,13 @@ Product_Widget::register_widget();
 
 function enqueue_product_widget($hook)
 {
-    if('post.php' != $hook )
+    if('post.php' != $hook)
     {
         return;
     }
 
     wp_enqueue_script('product_widget_files_js', plugins_url('/assets/product_widget.js', __FILE__));
-    wp_enqueue_script('product_widget_files_css', plugins_url('/assets/product_widget.css', __FILE__));
+    wp_enqueue_style('product_widget_files_css', plugins_url('/assets/product_widget.css', __FILE__));
 }
 
 add_action('admin_enqueue_scripts', 'enqueue_product_widget');
