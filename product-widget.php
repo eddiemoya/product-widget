@@ -147,6 +147,7 @@ class Product_Widget extends WP_Widget
 				)
 			),
 			array(
+
 				'field_id'		=> "pw_fields_to_show",
 				'type'			=> "select",
 				'label'			=> "Fields to Show",
@@ -158,12 +159,22 @@ class Product_Widget extends WP_Widget
 				)
 			),
 			array(
+				'field_id'		=> "pw_animation_duration",
+				'type'			=> "text",
+				'label'			=> "Animation Duration (0 for no animation)",
+			),
+			array(
 				'field_id'		=> "pw_ids",
 				'type'			=> "textarea",
 				'label'			=> "IDs (CSV List)",
 				'remove_value'	=> TRUE
 			)
 		);
+
+		if(!isset($instance['pw_animation_duration'])){
+			$instance['pw_animation_duration'] = 0;
+		}
+
 
 		$supFields = array();
 		$sf = NULL;
