@@ -67,27 +67,31 @@ class Product_Widget extends WP_Widget
     public function update($new_instance, $old_instance)
 	{
 		// inherit the existing settings
-		$instance = $old_instance;        
-		$ids = explode(",", $instance['pw_ids']);
+		$instance = $old_instance;
 
-		for($i=0; $i<count($ids); $i++)
+		if(!empty($instance['pw_ids']))
 		{
-			$ids[$i] = trim($ids[$i]);
-		}
+			$ids = explode(",", $instance['pw_ids']);
 
-		$model = new Products_Model($ids);
-		$prods = $model->products;
-		$nf = $model->not_found;
-
-		foreach($prods as $p)
-		{
-			if(empty($p))
+			for($i=0; $i<count($ids); $i++)
 			{
-				continue;
+				$ids[$i] = trim($ids[$i]);
 			}
 
-			$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
-			$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+			$model = new Products_Model($ids);
+			$prods = $model->products;
+			$nf = $model->not_found;
+
+			foreach($prods as $p)
+			{
+				if(empty($p))
+				{
+					continue;
+				}
+
+				$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
+				$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+			}
 		}
 
 		if(!empty($nf))
