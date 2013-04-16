@@ -56,7 +56,6 @@ class Product_Widget extends WP_Widget
 			$load[$k] = $v; 
 		}
 
-
 		$template = locate_template(array("widgets/product-widget/slider.php"));
 		$data = $model->get_by_id(array_values($load));
 	
@@ -97,27 +96,21 @@ class Product_Widget extends WP_Widget
 				$ids[$i] = trim($ids[$i]);
 			}
 
-			if(class_exists('Products_Model'))
+			$model = new Products_Model($ids);
+			$prods = $model->products;
+			$nf = $model->not_found;
+
+			foreach($prods as $p)
 			{
-				$model = new Products_Model($ids);
-				$prods = $model->products;
-				$nf = $model->not_found;
-
-				$new_instance['all_post_ids'] = array();
-				foreach($prods as $p)
+				if(empty($p))
 				{
-					if(empty($p))
-					{
-						continue;
-					}
-
-					$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
-					$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+					continue;
 				}
+
+				$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
+				$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
 			}
 		}
-
-		$new_instance['all_post_ids'] = json_encode($new_instance['all_post_ids']);
 
 		if(!empty($nf))
 		{
