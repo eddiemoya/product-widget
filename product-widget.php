@@ -32,25 +32,8 @@ class Product_Widget extends WP_Widget
 		extract($args);
         extract($instance);
 
-        //Part Numbers
         $parts = array();
-
-        //Post IDs
         $prods = array();
-
-        if($lazyload){
-	        $prods = unserialize($instance['all_post_ids']);
-	        $unloaded_prods = NULL;
-
-	        $slice_size = $pw_fields_to_show + 2 + 3;
-
-	        if (count($prods) > $slice_size){
-	        	$unloaded_prods = array_slice($prods, $slice_size);
-	        	$parts = array_slice($parts, 0, $slice_size);
-	        	$prods = array_slice($prods, 0, $slice_size);
-	        } 
-        }       
-
 
 		$model = new Products_Model($parts);
 		$nf = (!empty($model->not_found)) ? $model->not_found : array();
@@ -66,14 +49,10 @@ class Product_Widget extends WP_Widget
 					continue;
 				}
 
-				//Part numbers
 				$parts[] = $part;
-
-				//Post IDs
 				$prods[] = $v;
 			}
 		}
-
 
 		$template = locate_template(array("widgets/product-widget/slider.php"));
 		$data = $model->get_by_id($prods);
@@ -90,8 +69,6 @@ class Product_Widget extends WP_Widget
 		// inherit the existing settings
 		$instance = $old_instance;
 
-		$new_instance['all_post_ids'] = json_decode($old_instance['all_post_ids']);
-
 		if(!empty($instance['pw_ids']))
 		{
 			$ids = explode(",", $instance['pw_ids']);
@@ -101,28 +78,21 @@ class Product_Widget extends WP_Widget
 				$ids[$i] = trim($ids[$i]);
 			}
 
-			if(class_exists('Products_Model'))
+			$model = new Products_Model($ids);
+			$prods = $model->products;
+			$nf = $model->not_found;
+
+			foreach($prods as $p)
 			{
-				$model = new Products_Model($ids);
-				$prods = $model->products;
-				$nf = $model->not_found;
-
-				$new_instance['all_post_ids'] = array();
-				foreach($prods as $p)
+				if(empty($p))
 				{
-					if(empty($p))
-					{
-						continue;
-					}
-
-					//$new_instance['all_post_ids'][$p->ID] = $p->meta->partnumber;
-					$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
-					$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
+					continue;
 				}
+
+				$new_instance['pw_id_' . $p->meta->partnumber] = $p->ID;
+				$new_instance['check_pw_id_' . $p->meta->partnumber] = "on";
 			}
 		}
-
-		$new_instance['all_post_ids'] = json_encode($new_instance['all_post_ids']);
 
 		if(!empty($nf))
 		{
@@ -143,10 +113,6 @@ class Product_Widget extends WP_Widget
 				if(strpos($key, 'check_pw_id_') === 0)
 				{
 					unset($instance[str_replace("check_", "", $key)]);
-					// if(($index = array_search($key, $instance['all_post_ids'])) !== false) {
-    	// 				unset($instance[$index]);
-					// }
-
 				}
 			}
 
@@ -154,11 +120,9 @@ class Product_Widget extends WP_Widget
         	{
         		unset($instance[str_replace("check_", "", $key)]);
         		unset($instance[$key]);
-        		// unset($instance['all_post_ids']);
         	}
         }
 
-       // print_pre($instance);
 		return $instance;
 	}
 
