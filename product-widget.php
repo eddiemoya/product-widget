@@ -59,6 +59,7 @@ class Product_Widget extends WP_Widget
 	   
 		echo $before_widget;
 
+		$pw_template = FALSE;
 		include($template);
 
         echo $after_widget;
@@ -137,15 +138,15 @@ class Product_Widget extends WP_Widget
 				'type'			=> "text",
 				'label'			=> "Title"
 			),
-			array(
-				'field_id'		=> "pw_template",
-				'type'			=> "select",
-				'label'			=> "Template",
-				'options'		=> array(
-					'products-horizontal'	=> "Horizontal",
-					'products-vertical'		=> "Vertical"
-				)
-			),
+			//array(
+			//	'field_id'		=> "pw_template",
+			//	'type'			=> "select",
+			//	'label'			=> "Template",
+			//	'options'		=> array(
+			//		'products-horizontal'	=> "Horizontal",
+			//		'products-vertical'		=> "Vertical"
+			//	)
+			//),
 			array(
 
 				'field_id'		=> "pw_fields_to_show",
@@ -161,7 +162,7 @@ class Product_Widget extends WP_Widget
 			array(
 				'field_id'		=> "pw_animation_duration",
 				'type'			=> "text",
-				'label'			=> "Animation Duration (0 for no animation)",
+				'label'			=> "Auto-slide Interval (0 for no animation)",
 			),
 			array(
 				'field_id'		=> "pw_ids",
