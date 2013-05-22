@@ -83,6 +83,8 @@ class Product_Widget extends WP_Widget
 		include($template);
 
         echo $after_widget;
+        
+        wp_enqueue_script('carousel');
     }
     
     public function update($new_instance, $old_instance)
